@@ -4,10 +4,10 @@ TypeScript packages collection for Node.js applications. Framework-agnostic util
 
 ## Packages
 
-| Package | Version | Description |
-|---------|---------|-------------|
-| [@miermontoto/s3](./packages/s3) | 1.0.0 | Simple TypeScript wrapper for AWS S3 operations |
-| [@miermontoto/zip](./packages/zip) | 1.0.0 | Simple TypeScript wrapper for ZIP operations using archiver |
+| Package | Description |
+|---------|-------------|
+| [@miermontoto/s3](./packages/s3) | Simple TypeScript wrapper for AWS S3 operations |
+| [@miermontoto/zip](./packages/zip) | Simple TypeScript wrapper for ZIP operations using archiver |
 
 ## Installation
 
@@ -34,14 +34,47 @@ pnpm --filter @miermontoto/s3 build
 
 ## Publishing
 
-Packages are published to npm registry. To publish:
+### First-time Setup
 
 ```bash
-# build package first
-pnpm --filter <package-name> build
+# login to npm if not already logged in
+npm login
+```
 
-# publish
+### Build Packages
+
+```bash
+# build all packages
+pnpm -r build
+
+# or build individually
+pnpm --filter <package-name> build
+```
+
+### Publish with Changesets (Recommended)
+
+```bash
+# create a changeset for version bumps
+pnpm changeset
+# - select packages to release
+# - choose version bump type (patch/minor/major)
+# - add a summary of changes
+
+# update versions based on changesets
+pnpm version
+
+# build and publish all packages
+pnpm release
+```
+
+### Direct Publishing (Individual Packages)
+
+```bash
+# publish individual package
 pnpm --filter <package-name> publish
+
+# for first-time publishing of scoped packages
+pnpm --filter <package-name> publish --access public
 ```
 
 ## License
