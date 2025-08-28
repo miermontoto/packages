@@ -1,0 +1,48 @@
+{
+  "name": "@miermontoto/s3",
+  "version": "1.0.0",
+  "description": "Simple TypeScript wrapper for AWS S3 operations",
+  "author": "Juan Mier",
+  "license": "CC BY-NC-ND 4.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "build:watch": "tsc --watch",
+    "prepublishOnly": "pnpm build"
+  },
+  "keywords": [
+    "s3",
+    "aws",
+    "storage",
+    "typescript",
+    "wrapper",
+    "simple"
+  ],
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.876.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/miermontoto/packages.git"
+  },
+  "bugs": {
+    "url": "https://github.com/miermontoto/packages/issues"
+  },
+  "homepage": "https://github.com/miermontoto/packages#readme",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

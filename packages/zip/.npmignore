@@ -1,0 +1,38 @@
+# source files
+src/
+tsconfig.json
+
+# development files
+.gitignore
+.npmignore
+*.test.ts
+*.spec.ts
+
+# build artifacts
+*.tsbuildinfo
+
+# editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# os files
+.DS_Store
+Thumbs.db
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# testing
+coverage/
+.nyc_output/
+
+# misc
+.env
+.env.local
+.env.*.local
