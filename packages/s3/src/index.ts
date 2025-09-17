@@ -12,6 +12,7 @@ import {
   type DeleteObjectCommandInput,
   type GetObjectCommandInput,
   type HeadObjectCommandInput,
+  type HeadObjectCommandOutput,
   type ListObjectsV2CommandInput,
   type ListObjectsV2CommandOutput,
   type PutObjectCommandInput,
@@ -166,14 +167,13 @@ export class S3Wrapper {
   /**
    * obtiene metadata de un archivo
    */
-  async metadata(key: string): Promise<boolean> {
+  async metadata(key: string): Promise<HeadObjectCommandOutput> {
     const params: HeadObjectCommandInput = {
       Bucket: this.bucket,
       Key: key,
     };
 
-    const response = await this.client.send(new HeadObjectCommand(params));
-    return wasSuccessful(response);
+    return await this.client.send(new HeadObjectCommand(params));
   }
 
   /**
