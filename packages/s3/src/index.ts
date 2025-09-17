@@ -1,19 +1,19 @@
 import {
-  S3Client,
-  S3ClientConfig,
-  PutObjectCommand,
-  GetObjectCommand,
+  CopyObjectCommand,
   DeleteObjectCommand,
+  GetBucketLocationCommand,
+  GetObjectCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
-  CopyObjectCommand,
-  GetBucketLocationCommand,
-  type PutObjectCommandInput,
-  type GetObjectCommandInput,
+  PutObjectCommand,
+  S3Client,
+  S3ClientConfig,
+  type CopyObjectCommandInput,
   type DeleteObjectCommandInput,
+  type GetObjectCommandInput,
   type HeadObjectCommandInput,
   type ListObjectsV2CommandInput,
-  type CopyObjectCommandInput,
+  type PutObjectCommandInput,
 } from '@aws-sdk/client-s3';
 
 import { S3WrapperConfig } from './interfaces';
@@ -27,22 +27,40 @@ const DEFAULT_MAX_KEYS = 1000;
  */
 export class S3Wrapper {
   private client: S3Client;
-  private defaultBucket?: string;
+  private bucket: string;
+  private readonly defaults: S3WrapperConfig;
 
-  constructor(config: S3WrapperConfig = {}) {
-    const clientConfig: S3ClientConfig = {
+  constructor(config: S3WrapperConfig) {
+    const clientConfig: S3WrapperConfig = {
+      bucket: config.bucket,
       region: config.region ?? process.env.AWS_REGION ?? DEFAULT_REGION,
     };
 
-    if (config.accessKeyId && config.secretAccessKey) {
+    if (config.credentials?.accessKeyId && config.credentials?.secretAccessKey) {
       clientConfig.credentials = {
-        accessKeyId: config.accessKeyId,
-        secretAccessKey: config.secretAccessKey,
+        accessKeyId: config.credentials.accessKeyId,
+        secretAccessKey: config.credentials.secretAccessKey,
       };
     }
 
-    this.client = new S3Client(clientConfig);
-    this.defaultBucket = config.bucket ?? process.env.AWS_BUCKET_NAME;
+    this.bucket = config.bucket;
+    this.defaults = clientConfig;
+    this.client = new S3Client(clientConfig as S3ClientConfig);
+  }
+
+  newClient(options: S3WrapperConfig = this.defaults) {
+    this.bucket = options.bucket;
+    // merge defaults with options por si no se pasan todos los valores.
+    const mergedOptions: S3WrapperConfig = { ...this.defaults, ...options };
+    this.client = new S3Client(mergedOptions as S3ClientConfig);
+  }
+
+  getBucket(): string {
+    return this.bucket;
+  }
+
+  setBucket(bucket: string) {
+    this.newClient({ bucket });
   }
 
   /**
@@ -58,7 +76,7 @@ export class S3Wrapper {
     },
   ) {
     const params: PutObjectCommandInput = {
-      Bucket: options?.bucket ?? this.defaultBucket,
+      Bucket: options?.bucket ?? this.bucket,
       Key: key,
       Body: body,
       ContentType: options?.contentType,
@@ -83,7 +101,7 @@ export class S3Wrapper {
     },
   ) {
     const params: GetObjectCommandInput = {
-      Bucket: options?.bucket ?? this.defaultBucket,
+      Bucket: options?.bucket ?? this.bucket,
       Key: key,
     };
 
@@ -115,7 +133,7 @@ export class S3Wrapper {
    */
   async delete(key: string, bucket?: string) {
     const params: DeleteObjectCommandInput = {
-      Bucket: bucket || this.defaultBucket,
+      Bucket: bucket || this.bucket,
       Key: key,
     };
 
@@ -131,7 +149,7 @@ export class S3Wrapper {
    */
   async exists(key: string, bucket?: string): Promise<boolean> {
     const params: HeadObjectCommandInput = {
-      Bucket: bucket ?? this.defaultBucket,
+      Bucket: bucket ?? this.bucket,
       Key: key,
     };
 
@@ -155,7 +173,7 @@ export class S3Wrapper {
    */
   async metadata(key: string, bucket?: string) {
     const params: HeadObjectCommandInput = {
-      Bucket: bucket ?? this.defaultBucket,
+      Bucket: bucket ?? this.bucket,
       Key: key,
     };
 
@@ -176,7 +194,7 @@ export class S3Wrapper {
     continuationToken?: string;
   }) {
     const params: ListObjectsV2CommandInput = {
-      Bucket: options?.bucket ?? this.defaultBucket,
+      Bucket: options?.bucket ?? this.bucket,
       Prefix: options?.prefix,
       MaxKeys: options?.maxKeys ?? DEFAULT_MAX_KEYS,
       ContinuationToken: options?.continuationToken,
@@ -200,8 +218,8 @@ export class S3Wrapper {
       destBucket?: string;
     },
   ) {
-    const sourceBucket = options?.sourceBucket ?? this.defaultBucket;
-    const destBucket = options?.destBucket ?? this.defaultBucket;
+    const sourceBucket = options?.sourceBucket ?? this.bucket;
+    const destBucket = options?.destBucket ?? this.bucket;
 
     if (!sourceBucket || !destBucket) {
       throw new Error('Source and destination buckets are required');
@@ -242,7 +260,7 @@ export class S3Wrapper {
   async getBucketRegion(bucketName?: string) {
     try {
       const response = await this.client.send(
-        new GetBucketLocationCommand({ Bucket: bucketName ?? this.defaultBucket })
+        new GetBucketLocationCommand({ Bucket: bucketName ?? this.bucket }),
       );
       return response.LocationConstraint ?? DEFAULT_REGION;
     } catch (error) {
@@ -258,17 +276,17 @@ export class S3Wrapper {
   }
 
   /**
-   * establece un bucket por defecto
+   * obtiene el nombre del fichero dentro de un evento S3 (como el que reciben las lambdas)
    */
-  setDefaultBucket(bucket: string) {
-    this.defaultBucket = bucket;
-  }
+  static getKeyFromEvent(event: any, firstOnly: boolean = true): string | string[] | null {
+    if (event.Records && Array.isArray(event.Records)) {
+      const keys = event.Records.map((record: any) => record.s3?.object?.key).filter(
+        (key: any) => key,
+      );
+      return keys.length === 1 && firstOnly ? keys[0] : keys;
+    }
 
-  /**
-   * obtiene el bucket por defecto
-   */
-  getDefaultBucket(): string | undefined {
-    return this.defaultBucket;
+    return null;
   }
 }
 

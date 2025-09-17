@@ -1,6 +1,8 @@
 export interface S3WrapperConfig {
-  bucket?: string;
+  bucket: string;
   region?: string;
-  accessKeyId?: string;
-  secretAccessKey?: string;
+  credentials?: {
+    accessKeyId?: string;
+    secretAccessKey?: string;
+  }
 }
