@@ -1,6 +1,5 @@
 {
   "name": "@miermontoto/packages",
-  "version": "1.0.0",
   "description": "TypeScript packages collection for Node.js",
   "author": "Juan Mier",
   "license": "MIT",

@@ -19,7 +19,6 @@ import {
 import { S3WrapperConfig } from './interfaces';
 
 const DEFAULT_REGION = 'us-east-1';
-const DEFAULT_DOWNLOAD_TYPE = 'buffer';
 const DEFAULT_MAX_KEYS = 1000;
 
 /**
@@ -93,15 +92,9 @@ export class S3Wrapper {
   /**
    * descarga un archivo de s3
    */
-  async download(
-    key: string,
-    options?: {
-      bucket?: string;
-      responseType?: 'text' | 'buffer' | 'stream';
-    },
-  ) {
+  async download(key: string, responseType: 'text' | 'buffer' | 'stream' = 'text') {
     const params: GetObjectCommandInput = {
-      Bucket: options?.bucket ?? this.bucket,
+      Bucket: this.bucket,
       Key: key,
     };
 
@@ -114,8 +107,6 @@ export class S3Wrapper {
     if (!response.Body) {
       throw new Error('Empty response body');
     }
-
-    const responseType = options?.responseType ?? DEFAULT_DOWNLOAD_TYPE;
 
     switch (responseType) {
       case 'text':
@@ -131,9 +122,9 @@ export class S3Wrapper {
   /**
    * elimina un archivo de s3
    */
-  async delete(key: string, bucket?: string) {
+  async delete(key: string) {
     const params: DeleteObjectCommandInput = {
-      Bucket: bucket || this.bucket,
+      Bucket: this.bucket,
       Key: key,
     };
 
@@ -147,9 +138,9 @@ export class S3Wrapper {
   /**
    * verifica si un archivo existe
    */
-  async exists(key: string, bucket?: string): Promise<boolean> {
+  async exists(key: string): Promise<boolean> {
     const params: HeadObjectCommandInput = {
-      Bucket: bucket ?? this.bucket,
+      Bucket: this.bucket,
       Key: key,
     };
 
@@ -171,9 +162,9 @@ export class S3Wrapper {
   /**
    * obtiene metadata de un archivo
    */
-  async metadata(key: string, bucket?: string) {
+  async metadata(key: string) {
     const params: HeadObjectCommandInput = {
-      Bucket: bucket ?? this.bucket,
+      Bucket: this.bucket,
       Key: key,
     };
 
@@ -187,14 +178,9 @@ export class S3Wrapper {
   /**
    * lista archivos en un bucket
    */
-  async list(options?: {
-    bucket?: string;
-    prefix?: string;
-    maxKeys?: number;
-    continuationToken?: string;
-  }) {
+  async list(options?: { prefix?: string; maxKeys?: number; continuationToken?: string }) {
     const params: ListObjectsV2CommandInput = {
-      Bucket: options?.bucket ?? this.bucket,
+      Bucket: this.bucket,
       Prefix: options?.prefix,
       MaxKeys: options?.maxKeys ?? DEFAULT_MAX_KEYS,
       ContinuationToken: options?.continuationToken,
@@ -210,24 +196,10 @@ export class S3Wrapper {
   /**
    * copia un archivo
    */
-  async copy(
-    sourceKey: string,
-    destKey: string,
-    options?: {
-      sourceBucket?: string;
-      destBucket?: string;
-    },
-  ) {
-    const sourceBucket = options?.sourceBucket ?? this.bucket;
-    const destBucket = options?.destBucket ?? this.bucket;
-
-    if (!sourceBucket || !destBucket) {
-      throw new Error('Source and destination buckets are required');
-    }
-
+  async copy(sourceKey: string, destKey: string, destBucket: string = this.bucket) {
     const params: CopyObjectCommandInput = {
       Bucket: destBucket,
-      CopySource: `${sourceBucket}/${sourceKey}`,
+      CopySource: `${this.bucket}/${sourceKey}`,
       Key: destKey,
     };
 
@@ -237,18 +209,11 @@ export class S3Wrapper {
   /**
    * mueve un archivo (copia y elimina)
    */
-  async move(
-    sourceKey: string,
-    destKey: string,
-    options?: {
-      sourceBucket?: string;
-      destBucket?: string;
-    },
-  ) {
-    const copyResult = await this.copy(sourceKey, destKey, options);
+  async move(sourceKey: string, destKey: string, destBucket: string = this.bucket) {
+    const copyResult = await this.copy(sourceKey, destKey, destBucket);
 
     if (copyResult.$metadata.httpStatusCode === 200) {
-      await this.delete(sourceKey, options?.sourceBucket);
+      await this.delete(sourceKey);
     }
 
     return copyResult;
@@ -257,11 +222,9 @@ export class S3Wrapper {
   /**
    * obtiene la región de un bucket a partir de su nombre.
    */
-  async getBucketRegion(bucketName?: string) {
+  async getBucketRegion(bucketName: string = this.bucket) {
     try {
-      const response = await this.client.send(
-        new GetBucketLocationCommand({ Bucket: bucketName ?? this.bucket }),
-      );
+      const response = await this.client.send(new GetBucketLocationCommand({ Bucket: bucketName }));
       return response.LocationConstraint ?? DEFAULT_REGION;
     } catch (error) {
       throw error;
