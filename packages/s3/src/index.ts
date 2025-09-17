@@ -13,9 +13,11 @@ import {
   type GetObjectCommandInput,
   type HeadObjectCommandInput,
   type ListObjectsV2CommandInput,
+  type ListObjectsV2CommandOutput,
   type PutObjectCommandInput,
 } from '@aws-sdk/client-s3';
 
+import { wasSuccessful } from './helpers';
 import { S3WrapperConfig } from './interfaces';
 
 const DEFAULT_REGION = 'us-east-1';
@@ -63,49 +65,56 @@ export class S3Wrapper {
   }
 
   /**
+   * obtiene el cliente s3 para operaciones avanzadas
+   */
+  getClient(): S3Client {
+    return this.client;
+  }
+
+  /**
    * sube un archivo a s3
    */
   async upload(
     key: string,
     body: Buffer | Uint8Array | string | ReadableStream,
     options?: {
-      bucket?: string;
       contentType?: string;
       metadata?: Record<string, string>;
     },
-  ) {
+  ): Promise<boolean> {
     const params: PutObjectCommandInput = {
-      Bucket: options?.bucket ?? this.bucket,
+      Bucket: this.bucket,
       Key: key,
       Body: body,
       ContentType: options?.contentType,
       Metadata: options?.metadata,
     };
 
-    if (!params.Bucket) {
-      throw new Error('Bucket is required');
-    }
+    const response = await this.client.send(new PutObjectCommand(params));
 
-    return await this.client.send(new PutObjectCommand(params));
+    return wasSuccessful(response);
   }
 
   /**
    * descarga un archivo de s3
    */
-  async download(key: string, responseType: 'text' | 'buffer' | 'stream' = 'text') {
+  async download(
+    key: string,
+    responseType: 'text' | 'buffer' | 'stream' = 'text',
+  ): Promise<string | Uint8Array | ReadableStream> {
     const params: GetObjectCommandInput = {
       Bucket: this.bucket,
       Key: key,
     };
 
-    if (!params.Bucket) {
-      throw new Error('Bucket is required');
-    }
-
     const response = await this.client.send(new GetObjectCommand(params));
 
     if (!response.Body) {
       throw new Error('Empty response body');
+    }
+
+    if (!wasSuccessful(response)) {
+      throw new Error('Failed to download file');
     }
 
     switch (responseType) {
@@ -122,17 +131,15 @@ export class S3Wrapper {
   /**
    * elimina un archivo de s3
    */
-  async delete(key: string) {
+  async delete(key: string): Promise<boolean> {
     const params: DeleteObjectCommandInput = {
       Bucket: this.bucket,
       Key: key,
     };
 
-    if (!params.Bucket) {
-      throw new Error('Bucket is required');
-    }
+    const response = await this.client.send(new DeleteObjectCommand(params));
 
-    return await this.client.send(new DeleteObjectCommand(params));
+    return wasSuccessful(response);
   }
 
   /**
@@ -144,17 +151,14 @@ export class S3Wrapper {
       Key: key,
     };
 
-    if (!params.Bucket) {
-      throw new Error('Bucket is required');
-    }
-
     try {
-      await this.client.send(new HeadObjectCommand(params));
-      return true;
+      const response = await this.client.send(new HeadObjectCommand(params));
+      return wasSuccessful(response);
     } catch (error: any) {
       if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
         return false;
       }
+
       throw error;
     }
   }
@@ -162,23 +166,24 @@ export class S3Wrapper {
   /**
    * obtiene metadata de un archivo
    */
-  async metadata(key: string) {
+  async metadata(key: string): Promise<boolean> {
     const params: HeadObjectCommandInput = {
       Bucket: this.bucket,
       Key: key,
     };
 
-    if (!params.Bucket) {
-      throw new Error('Bucket is required');
-    }
-
-    return await this.client.send(new HeadObjectCommand(params));
+    const response = await this.client.send(new HeadObjectCommand(params));
+    return wasSuccessful(response);
   }
 
   /**
    * lista archivos en un bucket
    */
-  async list(options?: { prefix?: string; maxKeys?: number; continuationToken?: string }) {
+  async list(options?: {
+    prefix?: string;
+    maxKeys?: number;
+    continuationToken?: string;
+  }): Promise<ListObjectsV2CommandOutput> {
     const params: ListObjectsV2CommandInput = {
       Bucket: this.bucket,
       Prefix: options?.prefix,
@@ -186,34 +191,39 @@ export class S3Wrapper {
       ContinuationToken: options?.continuationToken,
     };
 
-    if (!params.Bucket) {
-      throw new Error('Bucket is required');
-    }
-
     return await this.client.send(new ListObjectsV2Command(params));
   }
 
   /**
    * copia un archivo
    */
-  async copy(sourceKey: string, destKey: string, destBucket: string = this.bucket) {
+  async copy(
+    sourceKey: string,
+    destKey: string,
+    destBucket: string = this.bucket,
+  ): Promise<boolean> {
     const params: CopyObjectCommandInput = {
       Bucket: destBucket,
       CopySource: `${this.bucket}/${sourceKey}`,
       Key: destKey,
     };
 
-    return await this.client.send(new CopyObjectCommand(params));
+    const response = await this.client.send(new CopyObjectCommand(params));
+    return wasSuccessful(response);
   }
 
   /**
    * mueve un archivo (copia y elimina)
    */
-  async move(sourceKey: string, destKey: string, destBucket: string = this.bucket) {
+  async move(
+    sourceKey: string,
+    destKey: string,
+    destBucket: string = this.bucket,
+  ): Promise<boolean> {
     const copyResult = await this.copy(sourceKey, destKey, destBucket);
 
-    if (copyResult.$metadata.httpStatusCode === 200) {
-      await this.delete(sourceKey);
+    if (copyResult) {
+      return await this.delete(sourceKey);
     }
 
     return copyResult;
@@ -222,36 +232,15 @@ export class S3Wrapper {
   /**
    * obtiene la región de un bucket a partir de su nombre.
    */
-  async getBucketRegion(bucketName: string = this.bucket) {
+  async getBucketRegion(bucketName: string = this.bucket): Promise<string | undefined> {
     try {
       const response = await this.client.send(new GetBucketLocationCommand({ Bucket: bucketName }));
-      return response.LocationConstraint ?? DEFAULT_REGION;
+      return response.LocationConstraint;
     } catch (error) {
       throw error;
     }
   }
-
-  /**
-   * obtiene el cliente s3 para operaciones avanzadas
-   */
-  getClient(): S3Client {
-    return this.client;
-  }
-
-  /**
-   * obtiene el nombre del fichero dentro de un evento S3 (como el que reciben las lambdas)
-   */
-  static getKeyFromEvent(event: any, firstOnly: boolean = true): string | string[] | null {
-    if (event.Records && Array.isArray(event.Records)) {
-      const keys = event.Records.map((record: any) => record.s3?.object?.key).filter(
-        (key: any) => key,
-      );
-      return keys.length === 1 && firstOnly ? keys[0] : keys;
-    }
-
-    return null;
-  }
 }
 
-// exporta las interfaces
+export * from './helpers';
 export * from './interfaces';

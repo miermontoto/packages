@@ -1,5 +1,11 @@
 # @miermontoto/s3
 
+## 1.3.0
+
+### Minor Changes
+
+- return successful status booleans on specific operations
+
 ## 1.2.2
 
 ### Patch Changes
