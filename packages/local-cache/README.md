@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/@miermontoto/local-cache)](https://www.npmjs.com/package/@miermontoto/local-cache)
 
-Simple in-memory cache with TTL support and automatic cleanup for Node.js applications.
+In-memory cache implementation with TTL and automatic cleanup. Features include batch operations, prefix queries, named instances, and memory-efficient storage with periodic garbage collection.
 
 ## Installation
 

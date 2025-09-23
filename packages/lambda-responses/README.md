@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/@miermontoto/lambda-responses)](https://www.npmjs.com/package/@miermontoto/lambda-responses)
 
-Standardized HTTP response helpers for AWS Lambda functions with TypeScript support.
+Consistent HTTP response helpers for AWS Lambda functions. Provides type-safe response methods for all standard HTTP status codes with automatic CORS headers and error formatting.
 
 ## Installation
 

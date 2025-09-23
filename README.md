@@ -6,13 +6,13 @@ TypeScript packages collection for Node.js applications. Framework-agnostic util
 
 | Package | Description | NPM |
 |---------|-------------|-----|
-| [@miermontoto/cached-dynamo](./packages/cached-dynamo) | DynamoDB wrapper with built-in local memory caching | [npm](https://www.npmjs.com/package/@miermontoto/cached-dynamo) |
-| [@miermontoto/dynamo](./packages/dynamo) | Simple TypeScript wrapper for AWS DynamoDB operations | [npm](https://www.npmjs.com/package/@miermontoto/dynamo) |
-| [@miermontoto/lambda-handler](./packages/lambda-handler) | Base handler class and utilities for AWS Lambda functions | [npm](https://www.npmjs.com/package/@miermontoto/lambda-handler) |
-| [@miermontoto/lambda-responses](./packages/lambda-responses) | Standardized HTTP response helpers for AWS Lambda functions | [npm](https://www.npmjs.com/package/@miermontoto/lambda-responses) |
-| [@miermontoto/local-cache](./packages/local-cache) | Simple in-memory cache with TTL support and automatic cleanup | [npm](https://www.npmjs.com/package/@miermontoto/local-cache) |
-| [@miermontoto/s3](./packages/s3) | Simple TypeScript wrapper for AWS S3 operations | [npm](https://www.npmjs.com/package/@miermontoto/s3) |
-| [@miermontoto/zip](./packages/zip) | Simple TypeScript wrapper for ZIP operations using archiver | [npm](https://www.npmjs.com/package/@miermontoto/zip) |
+| [@miermontoto/cached-dynamo](./packages/cached-dynamo) | DynamoDB client with built-in memory caching for improved performance | [npm](https://www.npmjs.com/package/@miermontoto/cached-dynamo) |
+| [@miermontoto/dynamo](./packages/dynamo) | TypeScript wrapper for common DynamoDB operations with promise support | [npm](https://www.npmjs.com/package/@miermontoto/dynamo) |
+| [@miermontoto/lambda-handler](./packages/lambda-handler) | Base handler class for AWS Lambda with middleware support and health checks | [npm](https://www.npmjs.com/package/@miermontoto/lambda-handler) |
+| [@miermontoto/lambda-responses](./packages/lambda-responses) | Consistent HTTP response helpers for AWS Lambda functions | [npm](https://www.npmjs.com/package/@miermontoto/lambda-responses) |
+| [@miermontoto/local-cache](./packages/local-cache) | In-memory cache implementation with TTL and automatic cleanup | [npm](https://www.npmjs.com/package/@miermontoto/local-cache) |
+| [@miermontoto/s3](./packages/s3) | TypeScript wrapper for AWS S3 operations with streaming support | [npm](https://www.npmjs.com/package/@miermontoto/s3) |
+| [@miermontoto/zip](./packages/zip) | ZIP archive creation and extraction using archiver library | [npm](https://www.npmjs.com/package/@miermontoto/zip) |
 
 ## Installation
 
@@ -66,30 +66,6 @@ pnpm --filter @miermontoto/s3 build
 
 ## Publishing
 
-### Automated Publishing (GitHub Actions)
-
-Both registries are handled automatically by separate workflows when you push to `main`:
-
-1. **npm Registry** (`publish-npm.yml`)
-   - Automatically applies changesets and versions packages
-   - Publishes new versions directly to npm
-   - Commits version updates back to main branch
-   - Requires `NPM_TOKEN` secret in GitHub
-
-2. **GitHub Packages** (`publish-github.yml`)
-   - Runs when package.json files change
-   - Publishes any new versions to GitHub Packages
-   - Skips already published versions
-   - Uses built-in `GITHUB_TOKEN`
-
-### Setup Required
-
-Add `NPM_TOKEN` secret to your GitHub repository:
-1. Get token from [npmjs.com](https://www.npmjs.com/settings/~/tokens)
-2. Add to GitHub repo: Settings → Secrets → Actions → New repository secret
-
-### Development Workflow
-
 ```bash
 # 1. Create a changeset for version bumps
 pnpm changeset
@@ -105,20 +81,6 @@ git push
 # - Publish to npm registry
 # - Publish to GitHub Packages
 # - No PR or manual approval needed
-```
-
-### Manual Publishing (if needed)
-
-```bash
-# Login to npm
-npm login
-
-# Create changeset and update versions
-pnpm changeset
-pnpm run version
-
-# Publish to npm
-pnpm release
 ```
 
 ## License

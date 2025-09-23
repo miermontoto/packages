@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/@miermontoto/dynamo)](https://www.npmjs.com/package/@miermontoto/dynamo)
 
-Simple TypeScript wrapper for AWS DynamoDB operations with streamlined API and type safety.
+TypeScript wrapper for common DynamoDB operations with promise support. Provides a clean API for CRUD operations, queries, scans, and batch processing with automatic retries and connection pooling.
 
 ## Installation
 

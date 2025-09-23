@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/@miermontoto/s3)](https://www.npmjs.com/package/@miermontoto/s3)
 
-Simple TypeScript wrapper for AWS S3 operations with streamlined API and type safety.
+TypeScript wrapper for AWS S3 operations with streaming support. Handles file uploads, downloads, listing, deletion, and existence checks with built-in error handling and retry logic.
 
 ## Installation
 
