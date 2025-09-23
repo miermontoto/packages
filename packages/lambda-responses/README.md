@@ -1,5 +1,7 @@
 # @miermontoto/lambda-responses
 
+[![npm](https://img.shields.io/npm/v/@miermontoto/lambda-responses)](https://www.npmjs.com/package/@miermontoto/lambda-responses)
+
 Standardized HTTP response helpers for AWS Lambda functions with TypeScript support.
 
 ## Installation

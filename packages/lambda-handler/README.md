@@ -1,5 +1,7 @@
 # @miermontoto/lambda-handler
 
+[![npm](https://img.shields.io/npm/v/@miermontoto/lambda-handler)](https://www.npmjs.com/package/@miermontoto/lambda-handler)
+
 Base handler class and utilities for AWS Lambda functions with middleware support.
 
 ## Installation

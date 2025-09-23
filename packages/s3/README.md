@@ -1,5 +1,7 @@
 # @miermontoto/s3
 
+[![npm](https://img.shields.io/npm/v/@miermontoto/s3)](https://www.npmjs.com/package/@miermontoto/s3)
+
 Simple TypeScript wrapper for AWS S3 operations with streamlined API and type safety.
 
 ## Installation

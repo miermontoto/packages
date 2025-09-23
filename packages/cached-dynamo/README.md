@@ -1,5 +1,7 @@
 # @miermontoto/cached-dynamo
 
+[![npm](https://img.shields.io/npm/v/@miermontoto/cached-dynamo)](https://www.npmjs.com/package/@miermontoto/cached-dynamo)
+
 DynamoDB wrapper with built-in local memory caching, combining @miermontoto/dynamo and @miermontoto/local-cache.
 
 ## Installation

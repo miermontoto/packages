@@ -1,5 +1,7 @@
 # @miermontoto/zip
 
+[![npm](https://img.shields.io/npm/v/@miermontoto/zip)](https://www.npmjs.com/package/@miermontoto/zip)
+
 Simple TypeScript wrapper for ZIP operations using archiver with streaming support.
 
 ## Installation

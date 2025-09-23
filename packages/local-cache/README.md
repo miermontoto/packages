@@ -1,5 +1,7 @@
 # @miermontoto/local-cache
 
+[![npm](https://img.shields.io/npm/v/@miermontoto/local-cache)](https://www.npmjs.com/package/@miermontoto/local-cache)
+
 Simple in-memory cache with TTL support and automatic cleanup for Node.js applications.
 
 ## Installation

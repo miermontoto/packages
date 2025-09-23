@@ -1,5 +1,7 @@
 # @miermontoto/dynamo
 
+[![npm](https://img.shields.io/npm/v/@miermontoto/dynamo)](https://www.npmjs.com/package/@miermontoto/dynamo)
+
 Simple TypeScript wrapper for AWS DynamoDB operations with streamlined API and type safety.
 
 ## Installation
