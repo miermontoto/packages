@@ -6,6 +6,11 @@ TypeScript packages collection for Node.js applications. Framework-agnostic util
 
 | Package | Description |
 |---------|-------------|
+| [@miermontoto/cached-dynamo](./packages/cached-dynamo) | DynamoDB wrapper with built-in local memory caching |
+| [@miermontoto/dynamo](./packages/dynamo) | Simple TypeScript wrapper for AWS DynamoDB operations |
+| [@miermontoto/lambda-handler](./packages/lambda-handler) | Base handler class and utilities for AWS Lambda functions |
+| [@miermontoto/lambda-responses](./packages/lambda-responses) | Standardized HTTP response helpers for AWS Lambda functions |
+| [@miermontoto/local-cache](./packages/local-cache) | Simple in-memory cache with TTL support and automatic cleanup |
 | [@miermontoto/s3](./packages/s3) | Simple TypeScript wrapper for AWS S3 operations |
 | [@miermontoto/zip](./packages/zip) | Simple TypeScript wrapper for ZIP operations using archiver |
 

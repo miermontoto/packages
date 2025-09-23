@@ -1,0 +1,45 @@
+{
+  "author": "Juan Mier",
+  "bugs": {
+    "url": "https://github.com/miermontoto/packages/issues"
+  },
+  "description": "Simple in-memory cache with TTL support and automatic cleanup",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://github.com/miermontoto/packages#readme",
+  "keywords": [
+    "cache",
+    "memory",
+    "ttl",
+    "local",
+    "typescript",
+    "singleton"
+  ],
+  "license": "CC BY-NC-ND 4.0",
+  "main": "dist/index.js",
+  "name": "@miermontoto/local-cache",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/miermontoto/packages.git"
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "build:watch": "tsc --watch",
+    "prepublishOnly": "pnpm build"
+  },
+  "types": "dist/index.d.ts",
+  "version": "1.0.0"
+}
