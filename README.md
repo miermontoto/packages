@@ -66,38 +66,58 @@ pnpm --filter @miermontoto/s3 build
 
 ## Publishing
 
-### First-time Setup
+### Automated Publishing (GitHub Actions)
 
-For npm registry:
+Both registries are handled automatically by separate workflows when you push to `main`:
+
+1. **npm Registry** (`publish-npm.yml`)
+   - Automatically applies changesets and versions packages
+   - Publishes new versions directly to npm
+   - Commits version updates back to main branch
+   - Requires `NPM_TOKEN` secret in GitHub
+
+2. **GitHub Packages** (`publish-github.yml`)
+   - Runs when package.json files change
+   - Publishes any new versions to GitHub Packages
+   - Skips already published versions
+   - Uses built-in `GITHUB_TOKEN`
+
+### Setup Required
+
+Add `NPM_TOKEN` secret to your GitHub repository:
+1. Get token from [npmjs.com](https://www.npmjs.com/settings/~/tokens)
+2. Add to GitHub repo: Settings → Secrets → Actions → New repository secret
+
+### Development Workflow
+
 ```bash
-# login to npm if not already logged in
-npm login
+# 1. Create a changeset for version bumps
+pnpm changeset
+
+# 2. Commit and push (including the changeset)
+git add .
+git commit -m "feat: new feature"
+git push
+
+# The CI will automatically:
+# - Apply version bumps from changesets
+# - Commit the version updates back to main
+# - Publish to npm registry
+# - Publish to GitHub Packages
+# - No PR or manual approval needed
 ```
 
-For GitHub Actions (automated publishing to both registries):
-- Add `NPM_TOKEN` secret to your GitHub repository (get from npm.com)
-- `GITHUB_TOKEN` is automatically provided by GitHub Actions
-
-### Automated Publishing (via GitHub Actions)
-
-Simply push to the `main` branch. The GitHub Actions workflow will:
-1. Build all packages
-2. Create a release PR with version bumps
-3. Publish to **both npm and GitHub Packages** when the PR is merged
-
-### Manual Publishing with Changesets
+### Manual Publishing (if needed)
 
 ```bash
-# create a changeset for version bumps
-pnpm changeset
-# - select packages to release
-# - choose version bump type (patch/minor/major)
-# - add a summary of changes
+# Login to npm
+npm login
 
-# update versions based on changesets
+# Create changeset and update versions
+pnpm changeset
 pnpm run version
 
-# build and publish all packages
+# Publish to npm
 pnpm release
 ```
 
