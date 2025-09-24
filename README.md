@@ -13,6 +13,7 @@ TypeScript package collection for Node.js applications. framework-agnostic utili
 | [@miermontoto/local-cache](./packages/local-cache) | In-memory cache implementation with TTL and automatic cleanup | [npm](https://www.npmjs.com/package/@miermontoto/local-cache) |
 | [@miermontoto/s3](./packages/s3) | TypeScript wrapper for AWS S3 operations with streaming support | [npm](https://www.npmjs.com/package/@miermontoto/s3) |
 | [@miermontoto/zip](./packages/zip) | ZIP archive creation and extraction using archiver library | [npm](https://www.npmjs.com/package/@miermontoto/zip) |
+| [@miermontoto/ses](./packages/ses) | Simple TypeScript wrapper for AWS SES operations | [npm](https://www.npmjs.com/package/@miermontoto/ses) |
 
 ## Installation
 
