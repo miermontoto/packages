@@ -1,25 +1,21 @@
 import {
-  SESClient,
-  SESClientConfig,
-} from '@aws-sdk/client-ses';
-import {
-  S3Client,
-  GetObjectCommand,
   DeleteObjectCommand,
-  type GetObjectCommandInput,
   type DeleteObjectCommandInput,
-} from '@aws-sdk/client-s3';
+  GetObjectCommand,
+  type GetObjectCommandInput,
+  S3Client,
+  S3ClientConfig,
+} from "@aws-sdk/client-s3";
+import { SESClient, SESClientConfig } from "@aws-sdk/client-ses";
+import { SESEvent, SESEventRecord, SESMail } from "aws-lambda";
+
 import {
-  SESEvent,
-  SESEventRecord,
-  SESMail,
-  SESReceipt,
-} from 'aws-lambda';
+  ParsedAttachment,
+  ParsedSESEvent,
+  SESReceiverConfig,
+} from "./interfaces";
 
-import { parseEmailHeaders } from './helpers';
-import { SESReceiverConfig, ParsedSESEvent, ParsedAttachment } from './interfaces';
-
-const DEFAULT_REGION = 'us-east-1';
+const DEFAULT_REGION = "us-east-1";
 
 /**
  * wrapper para recibir y parsear eventos ses
@@ -30,23 +26,39 @@ export class SESReceiver {
   private config: SESReceiverConfig;
 
   constructor(config: SESReceiverConfig = {}) {
-    const clientConfig: SESClientConfig = {
-      region: config.region ?? process.env.AWS_REGION ?? DEFAULT_REGION,
+    const region = config.region ?? process.env.AWS_REGION ?? DEFAULT_REGION;
+
+    const sesClientConfig: SESClientConfig = {
+      region,
     };
 
-    if (config.credentials?.accessKeyId && config.credentials?.secretAccessKey) {
-      clientConfig.credentials = {
+    let credentials:
+      | { accessKeyId: string; secretAccessKey: string }
+      | undefined;
+
+    if (
+      config.credentials?.accessKeyId &&
+      config.credentials?.secretAccessKey
+    ) {
+      credentials = {
         accessKeyId: config.credentials.accessKeyId,
         secretAccessKey: config.credentials.secretAccessKey,
       };
+      sesClientConfig.credentials = credentials;
     }
 
     this.config = config;
-    this.sesClient = new SESClient(clientConfig);
+    this.sesClient = new SESClient(sesClientConfig);
 
     // inicializar cliente s3 si se proporciona bucket
     if (config.bucketName) {
-      this.s3Client = new S3Client(clientConfig);
+      const s3ClientConfig: S3ClientConfig = { region };
+
+      if (credentials) {
+        s3ClientConfig.credentials = credentials;
+      }
+
+      this.s3Client = new S3Client(s3ClientConfig);
     }
   }
 
@@ -90,7 +102,7 @@ export class SESReceiver {
     if (receipt.spamVerdict) {
       parsed.spam = {
         verdict: receipt.spamVerdict.status,
-        score: parseFloat(parsed.headers['x-ses-spam-verdict'] || '0'),
+        score: parseFloat(parsed.headers["x-ses-spam-verdict"] || "0"),
       };
     }
 
@@ -113,7 +125,7 @@ export class SESReceiver {
     }
 
     // si hay acción s3, intentar obtener el contenido
-    if (receipt.action?.type === 'S3' && this.s3Client) {
+    if (receipt.action?.type === "S3" && this.s3Client) {
       const s3Action = receipt.action as any;
       if (s3Action.bucketName && s3Action.objectKey) {
         try {
@@ -127,7 +139,7 @@ export class SESReceiver {
             parsed.attachments = await this.parseAttachments(parsed.content);
           }
         } catch (error) {
-          console.error('Error retrieving email from S3:', error);
+          console.error("Error retrieving email from S3:", error);
         }
       }
     }
@@ -153,10 +165,16 @@ export class SESReceiver {
     if (mail.commonHeaders) {
       const common = mail.commonHeaders as any;
       if (common.subject) headers.subject = common.subject;
-      if (common.from) headers.from = Array.isArray(common.from) ? common.from[0] : common.from;
-      if (common.to) headers.to = Array.isArray(common.to) ? common.to.join(', ') : common.to;
+      if (common.from)
+        headers.from = Array.isArray(common.from)
+          ? common.from[0]
+          : common.from;
+      if (common.to)
+        headers.to = Array.isArray(common.to)
+          ? common.to.join(", ")
+          : common.to;
       if (common.date) headers.date = common.date;
-      if (common.messageId) headers['message-id'] = common.messageId;
+      if (common.messageId) headers["message-id"] = common.messageId;
     }
 
     return headers;
@@ -170,7 +188,7 @@ export class SESReceiver {
     objectKey: string
   ): Promise<string | undefined> {
     if (!this.s3Client) {
-      throw new Error('S3 client not initialized');
+      throw new Error("S3 client not initialized");
     }
 
     const params: GetObjectCommandInput = {
@@ -185,7 +203,7 @@ export class SESReceiver {
         return await response.Body.transformToString();
       }
     } catch (error) {
-      console.error('Error fetching email from S3:', error);
+      console.error("Error fetching email from S3:", error);
       throw error;
     }
 
@@ -195,9 +213,12 @@ export class SESReceiver {
   /**
    * elimina email de s3 después de procesarlo
    */
-  async deleteEmailFromS3(bucketName: string, objectKey: string): Promise<boolean> {
+  async deleteEmailFromS3(
+    bucketName: string,
+    objectKey: string
+  ): Promise<boolean> {
     if (!this.s3Client) {
-      throw new Error('S3 client not initialized');
+      throw new Error("S3 client not initialized");
     }
 
     const params: DeleteObjectCommandInput = {
@@ -209,7 +230,7 @@ export class SESReceiver {
       await this.s3Client.send(new DeleteObjectCommand(params));
       return true;
     } catch (error) {
-      console.error('Error deleting email from S3:', error);
+      console.error("Error deleting email from S3:", error);
       return false;
     }
   }
@@ -217,15 +238,22 @@ export class SESReceiver {
   /**
    * parsea attachments del contenido del email (simplificado)
    */
-  private async parseAttachments(emailContent: string): Promise<ParsedAttachment[]> {
+  private async parseAttachments(
+    emailContent: string
+  ): Promise<ParsedAttachment[]> {
     const attachments: ParsedAttachment[] = [];
 
     // búsqueda simple de content-disposition headers
-    const contentDispositionRegex = /Content-Disposition:\s*attachment;\s*filename="?([^";\r\n]+)"?/gi;
+    const contentDispositionRegex =
+      /Content-Disposition:\s*attachment;\s*filename="?([^";\r\n]+)"?/gi;
     const contentTypeRegex = /Content-Type:\s*([^;\r\n]+)/gi;
 
     let match;
-    const positions: Array<{ filename: string; contentType?: string; start: number }> = [];
+    const positions: Array<{
+      filename: string;
+      contentType?: string;
+      start: number;
+    }> = [];
 
     // encontrar todas las posiciones de attachments
     while ((match = contentDispositionRegex.exec(emailContent)) !== null) {
@@ -234,11 +262,15 @@ export class SESReceiver {
 
       // buscar content-type antes de este attachment
       contentTypeRegex.lastIndex = Math.max(0, start - 200);
-      const typeMatch = contentTypeRegex.exec(emailContent.substring(Math.max(0, start - 200), start));
+      const typeMatch = contentTypeRegex.exec(
+        emailContent.substring(Math.max(0, start - 200), start)
+      );
 
       positions.push({
         filename,
-        contentType: typeMatch ? typeMatch[1].trim() : 'application/octet-stream',
+        contentType: typeMatch
+          ? typeMatch[1].trim()
+          : "application/octet-stream",
         start,
       });
     }
@@ -247,7 +279,7 @@ export class SESReceiver {
     for (const pos of positions) {
       attachments.push({
         filename: pos.filename,
-        contentType: pos.contentType || 'application/octet-stream',
+        contentType: pos.contentType || "application/octet-stream",
         size: 0, // simplificado, calcularía el tamaño real en producción
       });
     }
@@ -262,19 +294,27 @@ export class SESReceiver {
     const result: { text?: string; html?: string } = {};
 
     // buscar parte de texto plano
-    const textMatch = emailContent.match(/Content-Type:\s*text\/plain[^]*?\r?\n\r?\n([^]*?)(?=\r?\n--|\r?\n\r?\n--|\Z)/i);
+    const textMatch = emailContent.match(
+      /Content-Type:\s*text\/plain[^]*?\r?\n\r?\n([^]*?)(?=\r?\n--|\r?\n\r?\n--|\Z)/i
+    );
     if (textMatch) {
       result.text = textMatch[1].trim();
     }
 
     // buscar parte html
-    const htmlMatch = emailContent.match(/Content-Type:\s*text\/html[^]*?\r?\n\r?\n([^]*?)(?=\r?\n--|\r?\n\r?\n--|\Z)/i);
+    const htmlMatch = emailContent.match(
+      /Content-Type:\s*text\/html[^]*?\r?\n\r?\n([^]*?)(?=\r?\n--|\r?\n\r?\n--|\Z)/i
+    );
     if (htmlMatch) {
       result.html = htmlMatch[1].trim();
     }
 
     // si no hay partes mime, asumir que todo el contenido es texto
-    if (!result.text && !result.html && !emailContent.includes('Content-Type:')) {
+    if (
+      !result.text &&
+      !result.html &&
+      !emailContent.includes("Content-Type:")
+    ) {
       result.text = emailContent;
     }
 
@@ -285,15 +325,15 @@ export class SESReceiver {
    * valida que el email venga de un dominio autorizado
    */
   validateSenderDomain(from: string, allowedDomains: string[]): boolean {
-    const domain = from.split('@')[1]?.toLowerCase();
+    const domain = from.split("@")[1]?.toLowerCase();
     if (!domain) return false;
 
-    return allowedDomains.some(allowed => {
+    return allowedDomains.some((allowed) => {
       const normalizedAllowed = allowed.toLowerCase();
       // soportar wildcard subdomains
-      if (normalizedAllowed.startsWith('*.')) {
+      if (normalizedAllowed.startsWith("*.")) {
         const baseDomain = normalizedAllowed.substring(2);
-        return domain === baseDomain || domain.endsWith('.' + baseDomain);
+        return domain === baseDomain || domain.endsWith("." + baseDomain);
       }
       return domain === normalizedAllowed;
     });
@@ -304,14 +344,14 @@ export class SESReceiver {
    */
   isEmailSecure(parsed: ParsedSESEvent): boolean {
     const checks = [
-      parsed.spam?.verdict === 'PASS',
-      parsed.virus?.verdict === 'PASS',
-      parsed.dkim?.verdict === 'PASS',
-      parsed.spf?.verdict === 'PASS',
+      parsed.spam?.verdict === "PASS",
+      parsed.virus?.verdict === "PASS",
+      parsed.dkim?.verdict === "PASS",
+      parsed.spf?.verdict === "PASS",
     ];
 
     // todos los checks disponibles deben pasar
-    return checks.every(check => check !== false);
+    return checks.every((check) => check !== false);
   }
 
   /**
@@ -337,14 +377,14 @@ export class SESReceiver {
       // validar dominio si se especifica
       if (options?.allowedDomains) {
         if (!this.validateSenderDomain(email.from, options.allowedDomains)) {
-          rejected.push({ email, reason: 'Sender domain not allowed' });
+          rejected.push({ email, reason: "Sender domain not allowed" });
           continue;
         }
       }
 
       // validar seguridad si se requiere
       if (options?.requireSecure && !this.isEmailSecure(email)) {
-        rejected.push({ email, reason: 'Failed security checks' });
+        rejected.push({ email, reason: "Failed security checks" });
         continue;
       }
 
@@ -353,7 +393,7 @@ export class SESReceiver {
       // eliminar de s3 si se especifica
       if (options?.deleteAfterProcess && email.raw?.ses?.receipt?.action) {
         const action = email.raw.ses.receipt.action as any;
-        if (action.type === 'S3' && action.bucketName && action.objectKey) {
+        if (action.type === "S3" && action.bucketName && action.objectKey) {
           await this.deleteEmailFromS3(action.bucketName, action.objectKey);
         }
       }
