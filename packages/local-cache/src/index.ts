@@ -1,6 +1,9 @@
+import { CacheItem, LocalCacheConfig } from "./interfaces";
+
 /**
- * implementación de caché en memoria con ttl y limpieza automática.
- * útil para reducir llamadas a fuentes de datos externas.
+ * Implementación de caché en memoria para reducir peticiones a DynamoDB.
+ * Esta memoria depende de que la lambda se mantenga activa, pero sirve para
+ * reducir el coste en general.
  */
 export class LocalCache<T = any> {
   private static instances: Map<string, LocalCache<any>> = new Map();
@@ -17,7 +20,11 @@ export class LocalCache<T = any> {
   }
 
   /**
-   * obtiene una instancia de caché (singleton por nombre)
+   * Obtiene una instancia de caché (singleton por nombre)
+   *
+   * @param name - Nombre de la instancia
+   * @param options - Configuración de la instancia
+   * @returns Instancia de la caché
    */
   public static getInstance<T = any>(
     name: string = "default",
@@ -30,7 +37,10 @@ export class LocalCache<T = any> {
   }
 
   /**
-   * obtiene un item del caché
+   * Obtiene un item del caché local, null si no existe o está expirado
+   *
+   * @param key - Clave del item
+   * @returns Item del caché o null si no existe o está expirado
    */
   public get(key: string): T | undefined {
     this.cleanup();
@@ -54,10 +64,19 @@ export class LocalCache<T = any> {
   }
 
   /**
-   * guarda un item en el caché
+   * Guarda un item en memoria
+   *
+   * @param key - Clave del item
+   * @param value - Valor del item. Si no se proporciona, el item se elimina de la caché
+   * @param ttlSeconds - Tiempo de expiración en segundos
    */
-  public set(key: string, value: T, ttlSeconds?: number): void {
+  public set(key: string, value?: T, ttlSeconds?: number): void {
     this.cleanup();
+
+    if (!value) {
+      this.cache.delete(key);
+      return;
+    }
 
     const item: CacheItem<T> = {
       key,
@@ -69,7 +88,10 @@ export class LocalCache<T = any> {
   }
 
   /**
-   * busca items por prefijo
+   * Busca items por prefijo
+   *
+   * @param prefix - Prefijo de la clave
+   * @returns Array de items
    */
   public query(prefix: string): T[] {
     this.cleanup();
@@ -95,14 +117,19 @@ export class LocalCache<T = any> {
   }
 
   /**
-   * guarda múltiples items
+   * Guarda múltiples items en memoria
+   *
+   * @param items - Array de items a guardar
    */
   public setMany(items: Array<{ key: string; value: T; ttl?: number }>): void {
     items.forEach((item) => this.set(item.key, item.value, item.ttl));
   }
 
   /**
-   * obtiene múltiples items por keys
+   * Obtiene múltiples items por keys
+   *
+   * @param keys - Array de keys
+   * @returns Map de items
    */
   public getMany(keys: string[]): Map<string, T> {
     const results = new Map<string, T>();
@@ -116,21 +143,24 @@ export class LocalCache<T = any> {
   }
 
   /**
-   * elimina un item del caché
+   * Elimina un item del caché
+   *
+   * @param key - Clave del item
+   * @returns true si se eliminó el item, false si no existía
    */
   public delete(key: string): boolean {
     return this.cache.delete(key);
   }
 
   /**
-   * limpia todo el caché
+   * Limpia todo el caché
    */
   public clear(): void {
     this.cache.clear();
   }
 
   /**
-   * obtiene el tamaño del caché
+   * Obtiene el tamaño del caché
    */
   public size(): number {
     this.cleanup();
@@ -138,7 +168,10 @@ export class LocalCache<T = any> {
   }
 
   /**
-   * verifica si existe una key
+   * Verifica si existe una key
+   *
+   * @param key - Clave del item
+   * @returns true si existe el item, false si no existe
    */
   public has(key: string): boolean {
     const value = this.get(key);
@@ -146,15 +179,41 @@ export class LocalCache<T = any> {
   }
 
   /**
-   * obtiene todas las keys
+   * Obtiene todas las keys
+   *
+   * @returns Array de keys
    */
   public keys(): string[] {
-    this.cleanup();
-    return Array.from(this.cache.keys());
+    const entries: [string, T][] = this.entries();
+    return entries.map(([key, _]) => key);
   }
 
   /**
-   * limpia items expirados
+   * Obtiene todos los valores del caché
+   *
+   * @returns Array de items
+   */
+  public values(): T[] {
+    const entries: [string, T][] = this.entries();
+    return entries.map(([_, value]) => value);
+  }
+
+  /**
+   * Obtiene todos los items del caché
+   *
+   * @returns Array de items
+   */
+  public entries(): [string, T][] {
+    this.cleanup();
+    return Array.from(this.cache.entries()).map(([key, item]) => [
+      key,
+      item.value,
+    ]);
+  }
+
+  /**
+   * Limpia items expirados. Se llama automáticamente en cada operación de
+   * lectura o escritura.
    */
   private cleanup(): void {
     const now = Date.now();
@@ -178,14 +237,4 @@ export class LocalCache<T = any> {
   }
 }
 
-// interfaces
-export interface LocalCacheConfig {
-  cleanupInterval?: number; // intervalo de limpieza en ms
-  enableLogging?: boolean; // habilitar logs
-}
-
-export interface CacheItem<T> {
-  key: string;
-  value: T;
-  ttl?: number; // tiempo de expiración en segundos unix
-}
+export * from "./interfaces";

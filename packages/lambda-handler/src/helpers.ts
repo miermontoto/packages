@@ -4,14 +4,14 @@ import { APIGatewayProxyEventV2 } from "aws-lambda";
  * extrae el método http del evento
  */
 export function getHttpMethod(event: APIGatewayProxyEventV2): string {
-  return event.requestContext?.http?.method || "UNKNOWN";
+  return event.requestContext?.http?.method ?? "UNKNOWN";
 }
 
 /**
  * extrae la ruta del evento
  */
 export function getPath(event: APIGatewayProxyEventV2): string {
-  return event.rawPath || event.requestContext?.http?.path || "/";
+  return event.rawPath ?? event.requestContext?.http?.path ?? "/";
 }
 
 /**
@@ -38,7 +38,7 @@ export function parseBody<T = any>(event: APIGatewayProxyEventV2): T | null {
 export function getQueryParams(
   event: APIGatewayProxyEventV2
 ): Record<string, string | undefined> {
-  return event.queryStringParameters || {};
+  return event.queryStringParameters ?? {};
 }
 
 /**
@@ -47,7 +47,7 @@ export function getQueryParams(
 export function getPathParams(
   event: APIGatewayProxyEventV2
 ): Record<string, string | undefined> {
-  return event.pathParameters || {};
+  return event.pathParameters ?? {};
 }
 
 /**
@@ -56,7 +56,7 @@ export function getPathParams(
 export function getHeaders(
   event: APIGatewayProxyEventV2
 ): Record<string, string | undefined> {
-  return event.headers || {};
+  return event.headers ?? {};
 }
 
 /**
@@ -72,12 +72,7 @@ export function isWarmupEvent(event: APIGatewayProxyEventV2): boolean {
     return true;
   }
 
-  // lambda warmer plugin
-  if (event.headers?.["lambda-warmer"]) {
-    return true;
-  }
-
-  return false;
+  return !!event.headers?.["lambda-warmer"];
 }
 
 /**

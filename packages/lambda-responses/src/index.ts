@@ -13,7 +13,13 @@ const CORS_HEADERS = {
 };
 
 /**
- * crea una respuesta estándar para aws lambda
+ * Función auxiliar para crear una respuesta estándar de información.
+ * El resto de métodos de este fichero se basan en esta función.
+ *
+ * @param statusCode - Código de estado de la respuesta.
+ * @param body - Cuerpo de la respuesta.
+ * @param headers - Encabezados de la respuesta.
+ * @returns Respuesta estándar de información.
  */
 export function createResponse(
   statusCode: number,
@@ -36,7 +42,11 @@ export function createResponse(
 }
 
 /**
- * respuesta 200 ok
+ * Función auxiliar para crear una respuesta 400 estandarizada.
+ * @see createResponse
+ *
+ * @param message - Mensaje de la respuesta (opcional)
+ * @returns Respuesta 400 de forma estándar.
  */
 export function ok(
   body: any = { message: "OK" },
@@ -85,7 +95,11 @@ export function badRequest(
 }
 
 /**
- * respuesta 401 unauthorized
+ * Función auxiliar para crear una respuesta 401 estandarizada.
+ * @see createResponse
+ *
+ * @param message - Mensaje de la respuesta (opcional)
+ * @returns Respuesta 401 de forma estándar.
  */
 export function unauthorized(
   message: string = "You are not authorized to access this resource",
@@ -99,7 +113,11 @@ export function unauthorized(
 }
 
 /**
- * respuesta 403 forbidden
+ * Función auxiliar para crear una respuesta 403 estandarizada.
+ * @see createResponse
+ *
+ * @param message - Mensaje de la respuesta (opcional)
+ * @returns Respuesta 403 de forma estándar.
  */
 export function forbidden(
   message: string = "You do not have permission to access this resource",
@@ -113,7 +131,11 @@ export function forbidden(
 }
 
 /**
- * respuesta 404 not found
+ * Función auxiliar para crear una respuesta 404 estandarizada.
+ * @see createResponse
+ *
+ * @param message - Mensaje de la respuesta (opcional)
+ * @returns Respuesta 404 de forma estándar.
  */
 export function notFound(
   message: string = "The requested resource does not exist",
@@ -127,7 +149,11 @@ export function notFound(
 }
 
 /**
- * respuesta 409 conflict
+ * Función auxiliar para crear una respuesta 409 estandarizada.
+ * @see createResponse
+ *
+ * @param message - Mensaje de la respuesta (opcional)
+ * @returns Respuesta 409 de forma estándar.
  */
 export function conflict(
   message: string = "The request could not be completed due to a conflict",
@@ -141,7 +167,11 @@ export function conflict(
 }
 
 /**
- * respuesta 422 unprocessable entity
+ * Función auxiliar para crear una respuesta 422 estandarizada.
+ * @see createResponse
+ *
+ * @param message - Mensaje de la respuesta (opcional)
+ * @returns Respuesta 422 de forma estándar.
  */
 export function unprocessableEntity(
   message: string = "The request could not be processed",
@@ -155,7 +185,11 @@ export function unprocessableEntity(
 }
 
 /**
- * respuesta 429 too many requests
+ * Función auxiliar para crear una respuesta 429 estandarizada.
+ * @see createResponse
+ *
+ * @param message - Mensaje de la respuesta (opcional)
+ * @returns Respuesta 429 de forma estándar.
  */
 export function tooManyRequests(
   message: string = "Too many requests",
@@ -169,7 +203,11 @@ export function tooManyRequests(
 }
 
 /**
- * respuesta 500 internal server error
+ * Función auxiliar para crear una respuesta 500 estandarizada.
+ * @see createResponse
+ *
+ * @param message - Mensaje de la respuesta (opcional)
+ * @returns Respuesta 500 de forma estándar.
  */
 export function serverError(
   message: string | Error = "An error occurred while processing the request",

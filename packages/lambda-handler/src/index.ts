@@ -11,8 +11,11 @@ import { isHealthCheck, isWarmupEvent } from "./helpers";
 import { ErrorHandler, HandlerConfig, MiddlewareFunction } from "./interfaces";
 
 /**
- * clase base para handlers de aws lambda
- * todos los servicios deben heredar de esta clase e implementar handleRoutes
+ * Handler base de todos los servicios de la lambda.
+ * Todos los servicios deben heredar de esta clase y implementar el método
+ * handleRoutes.
+ *
+ * @see handleRoutes
  */
 export abstract class BaseHandler {
   protected config: HandlerConfig;
@@ -29,8 +32,14 @@ export abstract class BaseHandler {
   }
 
   /**
-   * handler de las rutas de cada servicio
-   * debe contener el mapping de todas las rutas
+   * Handler de las rutas de cada servicio. Este método tiene que contener
+   * el mapping de todas las rutas de cada servicio, y devolver/controlar
+   * lo que se necesite en cada caso.
+   *
+   * @param event - Evento de entrada.
+   * @param context - Contexto de la lambda.
+   * @param callback - Callback de la lambda.
+   * @returns Respuesta estándar de información.
    */
   protected abstract handleRoutes(
     event: APIGatewayProxyEventV2,
@@ -39,7 +48,16 @@ export abstract class BaseHandler {
   ): Promise<APIGatewayProxyStructuredResultV2>;
 
   /**
-   * handler principal de la lambda
+   * Handler base de todos los servicios de la lambda.
+   * Se encarga de mapear el healthcheck (que siempre está presente) y lanzar
+   * el handler de las rutas que defina cada servicio.
+   *
+   * @see handleRoutes
+   *
+   * @param event - Evento de entrada.
+   * @param context - Contexto de la lambda.
+   * @param callback - Callback de la lambda.
+   * @returns Respuesta estándar de información.
    */
   public handler: APIGatewayProxyHandlerV2 = async (
     event: APIGatewayProxyEventV2,
@@ -56,13 +74,11 @@ export abstract class BaseHandler {
         });
       }
 
-      // warmup check
-      if (isWarmupEvent(event)) {
-        return this.handleWarmup();
-      }
-
-      // health check
-      if (isHealthCheck(event, this.config.healthCheckPath)) {
+      // warmups o healthchecks
+      if (
+        isWarmupEvent(event) ||
+        isHealthCheck(event, this.config.healthCheckPath)
+      ) {
         return this.healthCheck();
       }
 
@@ -83,20 +99,13 @@ export abstract class BaseHandler {
   };
 
   /**
-   * health check response
+   * Función auxiliar que devuelve un 200 de forma estándar.
+   * Se puede expandir para devolver más información, pero pa qué.
+   *
+   * @returns 200 de forma estándar.
    */
   protected healthCheck(): APIGatewayProxyStructuredResultV2 {
     return ok({ status: "healthy", timestamp: new Date().toISOString() });
-  }
-
-  /**
-   * warmup response
-   */
-  protected handleWarmup(): APIGatewayProxyStructuredResultV2 {
-    if (this.config.enableLogging) {
-      console.log("Lambda warmed up");
-    }
-    return ok({ message: "Lambda warmed" });
   }
 
   /**
@@ -136,7 +145,16 @@ export abstract class BaseHandler {
   }
 
   /**
-   * wrapper para handlers con tipado
+   * Función auxiliar que envuelve un handler con sus movidas porque el tipado
+   * de TypeScript es un poco asqueroso a veces.
+   *
+   * No hace nada más, solo lanza el handler y devuelve lo que devuelva.
+   *
+   * @param handler - Handler a lanzar.
+   * @param event - Evento de entrada.
+   * @param context - Contexto de la lambda.
+   * @param callback - Callback de la lambda.
+   * @returns Lo que devuelva el handler.
    */
   protected async wrapHandler(
     handler: APIGatewayProxyHandlerV2,

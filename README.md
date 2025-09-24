@@ -1,6 +1,6 @@
 # @miermontoto/packages
 
-TypeScript packages collection for Node.js applications. Framework-agnostic utilities and wrappers.
+TypeScript package collection for Node.js applications. framework-agnostic utilities and wrappers.
 
 ## Packages
 
@@ -16,9 +16,7 @@ TypeScript packages collection for Node.js applications. Framework-agnostic util
 
 ## Installation
 
-These packages are published to both npm registry and GitHub Packages.
-
-### From npm (recommended)
+### npm (recommended)
 
 ```bash
 # install individual packages
@@ -28,9 +26,9 @@ pnpm add @miermontoto/lambda-handler
 # etc...
 ```
 
-### From GitHub Packages
+### GitHub Packages
 
-To install from GitHub Packages, you'll need to:
+to install from GitHub Packages, you'll need to:
 
 1. Create a GitHub Personal Access Token with `read:packages` scope
 2. Configure npm to use GitHub Packages for `@miermontoto` scope:
@@ -51,7 +49,7 @@ pnpm add @miermontoto/dynamo
 
 ## Development
 
-This is a pnpm workspace monorepo. To work on packages:
+this is a pnpm workspace monorepo. to work on packages:
 
 ```bash
 # install dependencies
@@ -85,4 +83,4 @@ git push
 
 ## License
 
-All packages licensed under CC BY-NC-ND 4.0. Third-party dependencies apply.
+all packages licensed under CC BY-NC-ND 4.0. third-party dependencies apply.
