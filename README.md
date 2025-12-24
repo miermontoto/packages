@@ -7,10 +7,12 @@ TypeScript package collection for Node.js applications. framework-agnostic utili
 | Package | Description | NPM |
 |---------|-------------|-----|
 | [@miermontoto/cached-dynamo](./packages/cached-dynamo) | DynamoDB client with built-in memory caching for improved performance | [npm](https://www.npmjs.com/package/@miermontoto/cached-dynamo) |
+| [@miermontoto/config](./packages/config) | Configuration management with AWS Secrets Manager and environment variables | [npm](https://www.npmjs.com/package/@miermontoto/config) |
 | [@miermontoto/dynamo](./packages/dynamo) | TypeScript wrapper for common DynamoDB operations with promise support | [npm](https://www.npmjs.com/package/@miermontoto/dynamo) |
 | [@miermontoto/lambda-handler](./packages/lambda-handler) | Base handler class for AWS Lambda with middleware support and health checks | [npm](https://www.npmjs.com/package/@miermontoto/lambda-handler) |
 | [@miermontoto/lambda-responses](./packages/lambda-responses) | Consistent HTTP response helpers for AWS Lambda functions | [npm](https://www.npmjs.com/package/@miermontoto/lambda-responses) |
 | [@miermontoto/local-cache](./packages/local-cache) | In-memory cache implementation with TTL and automatic cleanup | [npm](https://www.npmjs.com/package/@miermontoto/local-cache) |
+| [@miermontoto/okticket](./packages/okticket) | Simple TypeScript wrapper for Okticket API operations | [npm](https://www.npmjs.com/package/@miermontoto/okticket) |
 | [@miermontoto/s3](./packages/s3) | TypeScript wrapper for AWS S3 operations with streaming support | [npm](https://www.npmjs.com/package/@miermontoto/s3) |
 | [@miermontoto/zip](./packages/zip) | ZIP archive creation and extraction using archiver library | [npm](https://www.npmjs.com/package/@miermontoto/zip) |
 | [@miermontoto/ses](./packages/ses) | Simple TypeScript wrapper for AWS SES operations | [npm](https://www.npmjs.com/package/@miermontoto/ses) |

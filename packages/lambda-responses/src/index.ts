@@ -18,7 +18,7 @@ const CORS_HEADERS = {
  *
  * @param statusCode - Código de estado de la respuesta.
  * @param body - Cuerpo de la respuesta.
- * @param headers - Encabezados de la respuesta.
+ * @param options - Opciones de la respuesta.
  * @returns Respuesta estándar de información.
  */
 export function createResponse(
@@ -42,11 +42,12 @@ export function createResponse(
 }
 
 /**
- * Función auxiliar para crear una respuesta 400 estandarizada.
+ * Función auxiliar para crear una respuesta 200 estandarizada.
  * @see createResponse
  *
- * @param message - Mensaje de la respuesta (opcional)
- * @returns Respuesta 400 de forma estándar.
+ * @param body - Cuerpo de la respuesta (opcional).
+ * @param options - Opciones de la respuesta (opcional).
+ * @returns Respuesta 200 de forma estándar.
  */
 export function ok(
   body: any = { message: "OK" },
@@ -56,7 +57,12 @@ export function ok(
 }
 
 /**
- * respuesta 201 created
+ * Función auxiliar para crear una respuesta 201 estandarizada.
+ * @see createResponse
+ *
+ * @param body - Cuerpo de la respuesta (opcional).
+ * @param options - Opciones de la respuesta (opcional).
+ * @returns Respuesta 201 de forma estándar.
  */
 export function created(
   body: any = { message: "Created" },
@@ -66,7 +72,11 @@ export function created(
 }
 
 /**
- * respuesta 204 no content
+ * Función auxiliar para crear una respuesta 204 estandarizada.
+ * @see createResponse
+ *
+ * @param options - Opciones de la respuesta (opcional).
+ * @returns Respuesta 204 de forma estándar.
  */
 export function noContent(
   options: ResponseOptions = {}
@@ -81,7 +91,12 @@ export function noContent(
 }
 
 /**
- * respuesta 400 bad request
+ * Función auxiliar para crear una respuesta 400 estandarizada.
+ * @see createResponse
+ *
+ * @param message - Mensaje de la respuesta (opcional).
+ * @param options - Opciones de la respuesta (opcional).
+ * @returns Respuesta 400 de forma estándar.
  */
 export function badRequest(
   message: string = "Bad Request",
@@ -98,7 +113,8 @@ export function badRequest(
  * Función auxiliar para crear una respuesta 401 estandarizada.
  * @see createResponse
  *
- * @param message - Mensaje de la respuesta (opcional)
+ * @param message - Mensaje de la respuesta (opcional).
+ * @param options - Opciones de la respuesta (opcional).
  * @returns Respuesta 401 de forma estándar.
  */
 export function unauthorized(
@@ -116,7 +132,8 @@ export function unauthorized(
  * Función auxiliar para crear una respuesta 403 estandarizada.
  * @see createResponse
  *
- * @param message - Mensaje de la respuesta (opcional)
+ * @param message - Mensaje de la respuesta (opcional).
+ * @param options - Opciones de la respuesta (opcional).
  * @returns Respuesta 403 de forma estándar.
  */
 export function forbidden(
@@ -134,7 +151,8 @@ export function forbidden(
  * Función auxiliar para crear una respuesta 404 estandarizada.
  * @see createResponse
  *
- * @param message - Mensaje de la respuesta (opcional)
+ * @param message - Mensaje de la respuesta (opcional).
+ * @param options - Opciones de la respuesta (opcional).
  * @returns Respuesta 404 de forma estándar.
  */
 export function notFound(
@@ -152,7 +170,8 @@ export function notFound(
  * Función auxiliar para crear una respuesta 409 estandarizada.
  * @see createResponse
  *
- * @param message - Mensaje de la respuesta (opcional)
+ * @param message - Mensaje de la respuesta (opcional).
+ * @param options - Opciones de la respuesta (opcional).
  * @returns Respuesta 409 de forma estándar.
  */
 export function conflict(
@@ -170,7 +189,8 @@ export function conflict(
  * Función auxiliar para crear una respuesta 422 estandarizada.
  * @see createResponse
  *
- * @param message - Mensaje de la respuesta (opcional)
+ * @param message - Mensaje de la respuesta (opcional).
+ * @param options - Opciones de la respuesta (opcional).
  * @returns Respuesta 422 de forma estándar.
  */
 export function unprocessableEntity(
@@ -188,7 +208,8 @@ export function unprocessableEntity(
  * Función auxiliar para crear una respuesta 429 estandarizada.
  * @see createResponse
  *
- * @param message - Mensaje de la respuesta (opcional)
+ * @param message - Mensaje de la respuesta (opcional).
+ * @param options - Opciones de la respuesta (opcional).
  * @returns Respuesta 429 de forma estándar.
  */
 export function tooManyRequests(
@@ -206,7 +227,8 @@ export function tooManyRequests(
  * Función auxiliar para crear una respuesta 500 estandarizada.
  * @see createResponse
  *
- * @param message - Mensaje de la respuesta (opcional)
+ * @param message - Mensaje de la respuesta (opcional).
+ * @param options - Opciones de la respuesta (opcional).
  * @returns Respuesta 500 de forma estándar.
  */
 export function serverError(
