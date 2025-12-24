@@ -1,6 +1,7 @@
 import archiver, { Archiver } from 'archiver';
-import { ZipWrapperConfig } from './interfaces';
+import AdmZip from 'adm-zip';
 import { Readable } from 'stream';
+import { ExtractedFile, ExtractOptions, ZipEntry, ZipWrapperConfig } from './interfaces';
 
 const DEFAULT_COMPRESSION_LEVEL = 9;
 
@@ -152,6 +153,87 @@ export class ZipWrapper {
    */
   getCompressionLevel(): number {
     return this.compressionLevel;
+  }
+
+  // ============ EXTRACTION METHODS ============
+
+  /**
+   * lists entries in a zip archive
+   */
+  list(source: Buffer | string): ZipEntry[] {
+    const zip = new AdmZip(source);
+    return zip.getEntries().map((entry) => ({
+      name: entry.name,
+      path: entry.entryName,
+      isDirectory: entry.isDirectory,
+      size: entry.header.size,
+      compressedSize: entry.header.compressedSize,
+    }));
+  }
+
+  /**
+   * extracts all files from a zip archive
+   */
+  extract(source: Buffer | string, options?: ExtractOptions): ExtractedFile[] {
+    const zip = new AdmZip(source);
+    let entries = zip.getEntries();
+
+    // filtrar directorios
+    entries = entries.filter((entry) => !entry.isDirectory);
+
+    // filtrar por extensiones si se especifican
+    if (options?.extensions?.length) {
+      const exts = options.extensions.map((e) => e.toLowerCase().replace(/^\./, ''));
+      entries = entries.filter((entry) => {
+        const ext = entry.entryName.split('.').pop()?.toLowerCase() || '';
+        return exts.includes(ext);
+      });
+    }
+
+    // filtrar por función personalizada
+    if (options?.filter) {
+      entries = entries.filter((entry) =>
+        options.filter!({
+          name: entry.name,
+          path: entry.entryName,
+          isDirectory: entry.isDirectory,
+          size: entry.header.size,
+          compressedSize: entry.header.compressedSize,
+        }),
+      );
+    }
+
+    return entries.map((entry) => ({
+      name: entry.name,
+      path: entry.entryName,
+      content: entry.getData(),
+      size: entry.header.size,
+    }));
+  }
+
+  /**
+   * extracts a single file by path
+   */
+  extractFile(source: Buffer | string, filePath: string): ExtractedFile | null {
+    const zip = new AdmZip(source);
+    const entry = zip.getEntry(filePath);
+
+    if (!entry || entry.isDirectory) return null;
+
+    return {
+      name: entry.name,
+      path: entry.entryName,
+      content: entry.getData(),
+      size: entry.header.size,
+    };
+  }
+
+  /**
+   * extracts files to disk
+   */
+  extractToDisk(source: Buffer | string, targetPath: string, overwrite = true): void {
+    const zip = new AdmZip(source);
+    zip.extractAllTo(targetPath, overwrite);
   }
 }
 
