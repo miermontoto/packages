@@ -27,23 +27,25 @@ export class CachedDynamoWrapper extends DynamoWrapper {
     // configurar caché
     this.cacheConfig = {
       enabled: config.cache?.enabled ?? true,
-      prefix: config.cache?.prefix ?? config.tableName,
+      prefix: config.cache?.prefix ?? `${config.tableName}:`,
       ttl: config.cache?.ttl,
       instanceName: config.cache?.instanceName ?? config.tableName,
     };
 
-    // obtener instancia de caché
-    this.cache = LocalCache.getInstance(this.cacheConfig.instanceName);
+    // obtener instancia de caché con prefijo configurado
+    this.cache = LocalCache.getInstance(this.cacheConfig.instanceName, {
+      prefix: this.cacheConfig.prefix,
+    });
   }
 
   /**
-   * genera la clave de caché para un item
+   * genera la clave de caché para un item (el prefijo lo maneja LocalCache)
    */
   private getCacheKey(
     partitionValue: string | number,
     sortValue?: string | number
   ): string {
-    return generateCacheKey(this.cacheConfig.prefix, partitionValue, sortValue);
+    return generateCacheKey(partitionValue, sortValue);
   }
 
   /**
@@ -147,7 +149,8 @@ export class CachedDynamoWrapper extends DynamoWrapper {
     partitionValue: string | number,
     options?: QueryOptions
   ): Promise<T[]> {
-    const cachePrefix = `${this.cacheConfig.prefix}:${partitionValue}`;
+    // el prefijo de tabla lo maneja automáticamente LocalCache
+    const cachePrefix = `${partitionValue}`;
 
     // buscar en caché local si está habilitado y no hay opciones complejas
     if (

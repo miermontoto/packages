@@ -1,12 +1,11 @@
 /**
- * genera una clave única para el caché
+ * genera una clave única para el caché (sin prefijo, LocalCache lo maneja)
  */
 export function generateCacheKey(
-  prefix: string,
   partitionValue: string | number,
   sortValue?: string | number
 ): string {
-  const key = `${prefix}:${partitionValue}`;
+  const key = `${partitionValue}`;
   return sortValue !== undefined ? `${key}:${sortValue}` : key;
 }
 

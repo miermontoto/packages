@@ -27,8 +27,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       '@miermontoto/local-cache':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.2.0
+        version: 1.2.0
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -664,8 +664,8 @@ packages:
     resolution: {integrity: sha512-WJQxJchqmh3tmDHFUgXl7cFQ1k1D1bpnHl4jHctLEmEM5eqR8YHQ3ozGzCMmL525TYKG2DlCELHRmj8AC33ysg==}
     engines: {node: '>=16.0.0'}
 
-  '@miermontoto/local-cache@1.0.0':
-    resolution: {integrity: sha512-bB7WxtD4J91Cf/vCjvzRUi3o1k8+DiFAsG9KhVegIIqb5NfYGaBldrEwsjZk9tDPwV6w7ULETcJzpPXF7qcJLw==}
+  '@miermontoto/local-cache@1.2.0':
+    resolution: {integrity: sha512-2RUN6QW+8fnR72DpWAHFpxnZL6Jew+pWrZvwk2hL9WLwZu2lMI7dB7AJdj0cV23iGEyT3XkWyu388RPLSsGC6w==}
     engines: {node: '>=16.0.0'}
 
   '@nodelib/fs.scandir@2.1.5':
@@ -3116,7 +3116,7 @@ snapshots:
     dependencies:
       aws-lambda: 1.0.7
 
-  '@miermontoto/local-cache@1.0.0': {}
+  '@miermontoto/local-cache@1.2.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
