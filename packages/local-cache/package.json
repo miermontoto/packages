@@ -41,5 +41,5 @@
     "prepublishOnly": "pnpm build"
   },
   "types": "dist/index.d.ts",
-  "version": "1.1.0"
+  "version": "1.2.0"
 }
