@@ -6,7 +6,7 @@
   "dependencies": {
     "axios": "^1.7.9"
   },
-  "description": "Simple TypeScript wrapper for Okticket API operations",
+  "description": "TypeScript client for Okticket API - B2B expense automation and management platform integration with OAuth support",
   "devDependencies": {
     "@types/node": "^20.0.0",
     "rimraf": "^6.0.1",
@@ -18,14 +18,27 @@
   "files": [
     "dist"
   ],
-  "homepage": "https://github.com/miermontoto/packages#readme",
+  "homepage": "https://github.com/miermontoto/packages/tree/main/packages/okticket#readme",
   "keywords": [
     "okticket",
-    "api",
+    "expense-management",
+    "expense-automation",
+    "b2b",
+    "saas",
+    "business-expenses",
+    "invoice-management",
+    "spending-control",
+    "api-client",
+    "api-wrapper",
     "oauth",
+    "oauth2",
     "typescript",
-    "wrapper",
-    "simple"
+    "rest-api",
+    "expense-tracking",
+    "corporate-expenses",
+    "finance-automation",
+    "okticket-api",
+    "okticket-integration"
   ],
   "license": "CC BY-NC-ND 4.0",
   "main": "dist/index.js",

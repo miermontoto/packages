@@ -12,10 +12,11 @@ TypeScript package collection for Node.js applications. framework-agnostic utili
 | [@miermontoto/lambda-handler](./packages/lambda-handler) | Base handler class for AWS Lambda with middleware support and health checks | [npm](https://www.npmjs.com/package/@miermontoto/lambda-handler) |
 | [@miermontoto/lambda-responses](./packages/lambda-responses) | Consistent HTTP response helpers for AWS Lambda functions | [npm](https://www.npmjs.com/package/@miermontoto/lambda-responses) |
 | [@miermontoto/local-cache](./packages/local-cache) | In-memory cache implementation with TTL and automatic cleanup | [npm](https://www.npmjs.com/package/@miermontoto/local-cache) |
-| [@miermontoto/okticket](./packages/okticket) | Simple TypeScript wrapper for Okticket API operations | [npm](https://www.npmjs.com/package/@miermontoto/okticket) |
+| [@miermontoto/okticket](./packages/okticket) | TypeScript client for Okticket API - B2B expense automation and management platform integration | [npm](https://www.npmjs.com/package/@miermontoto/okticket) |
 | [@miermontoto/s3](./packages/s3) | TypeScript wrapper for AWS S3 operations with streaming support | [npm](https://www.npmjs.com/package/@miermontoto/s3) |
-| [@miermontoto/zip](./packages/zip) | ZIP archive creation and extraction using archiver library | [npm](https://www.npmjs.com/package/@miermontoto/zip) |
 | [@miermontoto/ses](./packages/ses) | Simple TypeScript wrapper for AWS SES operations | [npm](https://www.npmjs.com/package/@miermontoto/ses) |
+| [@miermontoto/sns](./packages/sns) | Simple TypeScript wrapper for AWS SNS operations | [npm](https://www.npmjs.com/package/@miermontoto/sns) |
+| [@miermontoto/zip](./packages/zip) | ZIP archive creation and extraction using archiver library | [npm](https://www.npmjs.com/package/@miermontoto/zip) |
 
 ## Installation
 
@@ -87,23 +88,3 @@ git push
 ## License
 
 all packages licensed under CC BY-NC-ND 4.0. third-party dependencies apply.
-
-  3. Data Extraction Methods
-
-  - extractPhone() - dedicated phone number extraction with validation
-  - extractAddress() - address extraction with quality checks
-  - extractEmail() - email extraction filtering out provider domains
-  - validateSearchResults() - centralized validation for bot detection and search results
-  - selectBestBusinessName() - intelligent selection of best business name candidate
-
-  4. Reduced Verbosity
-
-  - Removed excessive debug logging (200+ lines reduced to essential logs)
-  - Simplified performBingSearch() from 70 lines to 35 lines
-  - Streamlined extractBusinessName() from 180 lines to 45 lines
-  - Comments now in Spanish for consistency with codebase
-
-  5. Better Error Handling
-
-  - Early returns for invalid states
-  - Consistent error logging format
