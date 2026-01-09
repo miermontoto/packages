@@ -87,3 +87,23 @@ git push
 ## License
 
 all packages licensed under CC BY-NC-ND 4.0. third-party dependencies apply.
+
+  3. Data Extraction Methods
+
+  - extractPhone() - dedicated phone number extraction with validation
+  - extractAddress() - address extraction with quality checks
+  - extractEmail() - email extraction filtering out provider domains
+  - validateSearchResults() - centralized validation for bot detection and search results
+  - selectBestBusinessName() - intelligent selection of best business name candidate
+
+  4. Reduced Verbosity
+
+  - Removed excessive debug logging (200+ lines reduced to essential logs)
+  - Simplified performBingSearch() from 70 lines to 35 lines
+  - Streamlined extractBusinessName() from 180 lines to 45 lines
+  - Comments now in Spanish for consistency with codebase
+
+  5. Better Error Handling
+
+  - Early returns for invalid states
+  - Consistent error logging format

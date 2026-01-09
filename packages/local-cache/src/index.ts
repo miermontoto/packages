@@ -11,12 +11,31 @@ export class LocalCache<T = any> {
   private lastCleanup: number;
   private readonly cleanupInterval: number;
   private readonly enableLogging: boolean;
+  private readonly prefix: string;
 
   private constructor(options: LocalCacheConfig = {}) {
     this.cache = new Map();
     this.lastCleanup = Date.now();
     this.cleanupInterval = options.cleanupInterval ?? 30 * 60 * 1000; // 30 minutos por defecto
     this.enableLogging = options.enableLogging ?? false;
+    this.prefix = options.prefix ?? "";
+  }
+
+  /**
+   * construye la clave completa con el prefijo si está configurado
+   */
+  private buildKey(key: string): string {
+    return this.prefix ? `${this.prefix}${key}` : key;
+  }
+
+  /**
+   * quita el prefijo de una clave para devolverla al usuario
+   */
+  private stripKey(fullKey: string): string {
+    if (!this.prefix) return fullKey;
+    return fullKey.startsWith(this.prefix)
+      ? fullKey.substring(this.prefix.length)
+      : fullKey;
   }
 
   /**
@@ -44,18 +63,19 @@ export class LocalCache<T = any> {
    */
   public get(key: string): T | undefined {
     this.cleanup();
-    const item = this.cache.get(key);
+    const fullKey = this.buildKey(key);
+    const item = this.cache.get(fullKey);
 
     if (item) {
       // verificar si el item ha expirado
       const now = Math.floor(Date.now() / 1000);
       if (item.ttl && item.ttl < now) {
-        this.cache.delete(key);
+        this.cache.delete(fullKey);
         return undefined;
       }
 
       if (this.enableLogging) {
-        console.log(`CACHE HIT: ${key}`);
+        console.log(`CACHE HIT: ${fullKey}`);
       }
       return item.value;
     }
@@ -73,18 +93,20 @@ export class LocalCache<T = any> {
   public set(key: string, value?: T, ttlSeconds?: number): void {
     this.cleanup();
 
+    const fullKey = this.buildKey(key);
+
     if (!value) {
-      this.cache.delete(key);
+      this.cache.delete(fullKey);
       return;
     }
 
     const item: CacheItem<T> = {
-      key,
+      key: fullKey,
       value,
       ttl: ttlSeconds ? Math.floor(Date.now() / 1000) + ttlSeconds : undefined,
     };
 
-    this.cache.set(key, item);
+    this.cache.set(fullKey, item);
   }
 
   /**
@@ -97,9 +119,10 @@ export class LocalCache<T = any> {
     this.cleanup();
     const now = Math.floor(Date.now() / 1000);
     const results: T[] = [];
+    const fullPrefix = this.buildKey(prefix);
 
     for (const [key, item] of this.cache.entries()) {
-      if (key.startsWith(prefix)) {
+      if (key.startsWith(fullPrefix)) {
         // verificar ttl
         if (!item.ttl || item.ttl >= now) {
           results.push(item.value);
@@ -110,7 +133,7 @@ export class LocalCache<T = any> {
     }
 
     if (this.enableLogging && results.length > 0) {
-      console.log(`CACHE QUERY HITS [${results.length}]: ${prefix}`);
+      console.log(`CACHE QUERY HITS [${results.length}]: ${fullPrefix}`);
     }
 
     return results;
@@ -149,7 +172,8 @@ export class LocalCache<T = any> {
    * @returns true si se eliminó el item, false si no existía
    */
   public delete(key: string): boolean {
-    return this.cache.delete(key);
+    const fullKey = this.buildKey(key);
+    return this.cache.delete(fullKey);
   }
 
   /**
@@ -206,7 +230,7 @@ export class LocalCache<T = any> {
   public entries(): [string, T][] {
     this.cleanup();
     return Array.from(this.cache.entries()).map(([key, item]) => [
-      key,
+      this.stripKey(key),
       item.value,
     ]);
   }
