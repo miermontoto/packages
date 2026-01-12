@@ -1,5 +1,11 @@
 # @miermontoto/config
 
+## 1.2.1
+
+### Patch Changes
+
+- 1d75eaf: getSync
+
 ## 1.2.0
 
 ### Minor Changes
