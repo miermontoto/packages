@@ -2,16 +2,17 @@ import { SecretsManager } from '@aws-sdk/client-secrets-manager';
 
 export class Config {
   private static instance: Config;
-  private readonly secretsManager: SecretsManager;
-  private readonly secretsContainerName: string;
+  private readonly secretsManager?: SecretsManager;
+  private readonly secretsContainerName?: string;
 
   private constructor() {
-    if (!process.env.AWS_SECRET_ID) {
-      throw new Error('AWS_SECRET_ID environment variable is not set');
+    // solo inicializar secrets manager si AWS_SECRET_ID está definido
+    if (process.env.AWS_SECRET_ID) {
+      this.secretsManager = new SecretsManager({});
+      this.secretsContainerName = process.env.AWS_SECRET_ID;
+    } else {
+      console.warn('AWS_SECRET_ID is not defined. Config will only use environment variables.');
     }
-    
-    this.secretsManager = new SecretsManager({});
-    this.secretsContainerName = process.env.AWS_SECRET_ID;
   }
 
   public static getInstance(): Config {
@@ -31,15 +32,17 @@ export class Config {
       return envValue;
     }
 
-    // 2. intentar obtener el valor de Secrets Manager
-    try {
-      const secretValue = await this.getSecretValue(key);
-      if (secretValue) {
-        return secretValue;
+    // 2. intentar obtener el valor de Secrets Manager (solo si está configurado)
+    if (this.secretsManager) {
+      try {
+        const secretValue = await this.getSecretValue(key);
+        if (secretValue) {
+          return secretValue;
+        }
+      } catch (error) {
+        // si hay un error, no lanzar excepción: imprimir error y seguir
+        console.error(`Error getting secret value for ${key}:`, error);
       }
-    } catch (error) {
-      // si hay un error, no lanzar excepción: imprimir error y seguir
-      console.error(`Error getting secret value for ${key}:`, error);
     }
 
     // 3. si no está en ninguno de los dos, devolver el valor por defecto
@@ -47,6 +50,11 @@ export class Config {
   }
 
   private async getSecretValue(key: string): Promise<string | undefined> {
+    // verificar que secrets manager esté inicializado
+    if (!this.secretsManager || !this.secretsContainerName) {
+      return undefined;
+    }
+
     try {
       const data = await this.secretsManager.getSecretValue({
         SecretId: this.secretsContainerName
