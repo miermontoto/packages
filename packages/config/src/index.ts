@@ -22,6 +22,13 @@ export class Config {
     return Config.instance;
   }
 
+  // versión síncrona: solo lee de variables de entorno, no hace peticiones a AWS
+  public getSync(key: string, defaultValue: string): string;
+  public getSync(key: string, defaultValue?: string): string | undefined;
+  public getSync(key: string, defaultValue?: string): string | undefined {
+    return process.env[key] ?? defaultValue;
+  }
+
   // sobrecarga: cuando se proporciona un valor por defecto, el resultado nunca será undefined
   public async get(key: string, defaultValue: string): Promise<string>;
   // sobrecarga: cuando no se proporciona valor por defecto, el resultado puede ser undefined

@@ -1,0 +1,5 @@
+---
+"@miermontoto/config": patch
+---
+
+getSync
