@@ -42,7 +42,7 @@ export class Config {
     defaultValue?: string
   ): Promise<string | undefined> {
     // 1. intentar obtener el valor de variables de entorno
-    const envValue = process.env[key];
+    const envValue = this.getSync(key);
     if (envValue) {
       return envValue;
     }
