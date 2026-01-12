@@ -1,5 +1,11 @@
 # @miermontoto/config
 
+## 1.2.2
+
+### Patch Changes
+
+- b2c038a: docs and minor changes
+
 ## 1.2.1
 
 ### Patch Changes
