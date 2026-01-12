@@ -1,5 +1,11 @@
 # @miermontoto/config
 
+## 1.2.0
+
+### Minor Changes
+
+- 279ad0a: make aws optional, better "get" types
+
 ## 1.1.0
 
 ### Minor Changes
