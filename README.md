@@ -13,6 +13,7 @@ TypeScript package collection for Node.js applications. framework-agnostic utili
 | [@miermontoto/lambda-responses](./packages/lambda-responses) | Consistent HTTP response helpers for AWS Lambda functions | [npm](https://www.npmjs.com/package/@miermontoto/lambda-responses) |
 | [@miermontoto/local-cache](./packages/local-cache) | In-memory cache implementation with TTL and automatic cleanup | [npm](https://www.npmjs.com/package/@miermontoto/local-cache) |
 | [@miermontoto/okticket](./packages/okticket) | TypeScript client for Okticket API - B2B expense automation and management platform integration | [npm](https://www.npmjs.com/package/@miermontoto/okticket) |
+| [@miermontoto/redis](./packages/redis) | TypeScript wrapper for Redis-optimized operations | [npm](https://www.npmjs.com/package/@miermontoto/redis) |
 | [@miermontoto/s3](./packages/s3) | TypeScript wrapper for AWS S3 operations with streaming support | [npm](https://www.npmjs.com/package/@miermontoto/s3) |
 | [@miermontoto/ses](./packages/ses) | Simple TypeScript wrapper for AWS SES operations | [npm](https://www.npmjs.com/package/@miermontoto/ses) |
 | [@miermontoto/sns](./packages/sns) | Simple TypeScript wrapper for AWS SNS operations | [npm](https://www.npmjs.com/package/@miermontoto/sns) |
