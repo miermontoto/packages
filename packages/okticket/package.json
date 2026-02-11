@@ -4,7 +4,7 @@
     "url": "https://github.com/miermontoto/packages/issues"
   },
   "dependencies": {
-    "axios": "^1.7.9"
+    "axios": "^1.13.5"
   },
   "description": "TypeScript client for Okticket API - B2B expense automation and management platform integration with OAuth support",
   "devDependencies": {
